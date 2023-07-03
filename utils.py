@@ -25,7 +25,6 @@ def create_new_user(request: Request) -> Response:
     except EmailNotValidError as e:
         abort(400)
 
-    # email =
     password = request.json.get("password")
 
     if username is None or password is None or email is None:
