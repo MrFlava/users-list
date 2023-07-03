@@ -138,4 +138,4 @@ applications/inbox/replies/messages/
 /ebay_log
 /gcloud_oauth.json
 /ate.csv
-.db
+*.db
