@@ -64,6 +64,7 @@ db.sqlite3
 db.sqlite3-journal
 
 # Flask stuff:
+database.db
 instance/
 .webassets-cache
 
@@ -138,4 +139,3 @@ applications/inbox/replies/messages/
 /ebay_log
 /gcloud_oauth.json
 /ate.csv
-*.db
