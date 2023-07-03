@@ -17,19 +17,3 @@ class User(db.Model):
 
     def verify_password(self, password):
         return pwd_context.verify(password, self.password_hash)
-
-    # def generate_auth_token(self,):
-    #     s = Serializer(app.config['SECRET_KEY'])
-    #     return s.dumps({'id': self.id})
-
-    # @staticmethod
-    # def verify_auth_token(token):
-    #     s = Serializer(app.config['SECRET_KEY'])
-    #     try:
-    #         data = s.loads(token)
-    #     except SignatureExpired:
-    #         return None    # valid token, but expired
-    #     except BadSignature:
-    #         return None    # invalid token
-    #     user = User.query.get(data['id'])
-    #     return user
