@@ -1,6 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
 from passlib.apps import custom_app_context as pwd_context
-# from itsdangerous import Serializer, BadSignature, SignatureExpired
 
 db = SQLAlchemy()
 
