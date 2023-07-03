@@ -1,6 +1,6 @@
 from flask import abort, jsonify
 from flask.wrappers import Response, Request
-
+from email_validator import validate_email, EmailNotValidError
 
 from models import User, db
 
@@ -17,7 +17,15 @@ def list_of_users() -> Response:
 
 def create_new_user(request: Request) -> Response:
     username = request.json.get("username")
-    email = request.json.get("email")
+    email = ""
+    try:
+        emailinfo = validate_email(request.json.get("email"), check_deliverability=False)
+        email = emailinfo.normalized
+
+    except EmailNotValidError as e:
+        abort(400)
+
+    # email =
     password = request.json.get("password")
 
     if username is None or password is None or email is None:
@@ -36,7 +44,12 @@ def create_new_user(request: Request) -> Response:
 
 def update_user(user: User, request: Request) -> Response:
     user.username = request.json.get("username")
-    user.email = request.json.get("email")
+    try:
+        emailinfo = validate_email(request.json.get("email"), check_deliverability=False)
+        user.email = emailinfo.normalized
+
+    except EmailNotValidError as e:
+        abort(400)
     user.hash_password(request.json.get("password"))
 
     db.session.commit()
