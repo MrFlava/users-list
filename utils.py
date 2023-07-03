@@ -5,6 +5,21 @@ from email_validator import validate_email, EmailNotValidError
 from models import User, db
 
 
+def email_validation(email: str) -> str:
+    try:
+        email_info = validate_email(email, check_deliverability=False)
+        email = email_info.normalized
+        return email
+
+    except EmailNotValidError as e:
+        abort(400)
+
+
+def validate_required_fields(fields: list):
+    if any(value is None for value in fields):
+        abort(400)
+
+
 def list_of_users() -> Response:
     user_objects = User.query.all()
     users = []
@@ -17,22 +32,17 @@ def list_of_users() -> Response:
 
 def create_new_user(request: Request) -> Response:
     username = request.json.get("username")
-    email = ""
-    try:
-        emailinfo = validate_email(request.json.get("email"), check_deliverability=False)
-        email = emailinfo.normalized
-
-    except EmailNotValidError as e:
-        abort(400)
-
+    email = request.json.get("email")
     password = request.json.get("password")
 
-    if username is None or password is None or email is None:
-        abort(400)  # missing arguments
+    validate_required_fields([username, email, password])
+
     if User.query.filter_by(username=username).first() is not None:
         abort(400)  # existing user
 
-    user = User(username=username, email=email)
+    validated_email = email_validation(email)
+
+    user = User(username=username, email=validated_email)
     user.hash_password(password)
 
     db.session.add(user)
@@ -42,14 +52,15 @@ def create_new_user(request: Request) -> Response:
 
 
 def update_user(user: User, request: Request) -> Response:
-    user.username = request.json.get("username")
-    try:
-        emailinfo = validate_email(request.json.get("email"), check_deliverability=False)
-        user.email = emailinfo.normalized
+    username = request.json.get("username")
+    email = request.json.get("email")
+    password = request.json.get("password")
 
-    except EmailNotValidError as e:
-        abort(400)
-    user.hash_password(request.json.get("password"))
+    validate_required_fields([username, email, password])
+
+    user.username = username
+    user.email = email_validation(email)
+    user.hash_password(password)
 
     db.session.commit()
     return jsonify({"status_code": 200, "user": {"username": user.username, "email": user.email}})
