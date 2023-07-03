@@ -3,7 +3,7 @@ from flask.wrappers import Response
 
 from models import db, User
 from utils import create_new_user, list_of_users, update_user, delete_user
-from settings import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS
+from settings import SQLALCHEMY_DATABASE_URI, SQLALCHEMY_TRACK_MODIFICATIONS, X_SECRET_VALUE
 
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = SQLALCHEMY_DATABASE_URI
@@ -18,6 +18,8 @@ def get_or_create_users() -> Response:
         return list_of_users()
 
     else:
+        if request.headers.get("x-secret") != X_SECRET_VALUE:
+            abort(400)
         return create_new_user(request)
 
 
@@ -34,6 +36,8 @@ def get_user_and_create_or_delete(pk: int) -> Response:
         return update_user(user, request)
 
     else:
+        if request.headers.get("x-secret") != X_SECRET_VALUE:
+            abort(400)
         return delete_user(user)
 
 
